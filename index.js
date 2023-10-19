@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -25,6 +25,7 @@ async function run() {
         await client.connect();
 
         const brandsCollection = client.db('brandsDB').collection('brands')
+        const cartsCollection = client.db('cartsDB').collection('carts')
 
         app.post('/cards', async (req, res) => {
             const newCard = req.body;
@@ -32,15 +33,31 @@ async function run() {
             res.send(result);
         })
 
+        // app.post('/carts/:id',async(req,res)=>{
+        //     const newItem = req.body
+        // })
+
         app.get('/cards', async (req, res) => {
             const cursor = brandsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
+        // app.get('/details', async (req, res) => {
+        //     const cursor = brandsCollection.find();
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // })
 
         app.get('/cards/:brandName',async(req,res)=>{
             const brandName = req.params.brandName;
             const query = { brandName: brandName }
+            const result = await brandsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.get('/details/:id', async(req,res)=>{
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
             const result = await brandsCollection.findOne(query);
             res.send(result);
         })
