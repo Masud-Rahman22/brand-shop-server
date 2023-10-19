@@ -32,33 +32,66 @@ async function run() {
             const result = await brandsCollection.insertOne(newCard);
             res.send(result);
         })
+        app.post('/carts', async (req, res) => {
+            const newCard = req.body;
+            const result = await cartsCollection.insertMany(newCard);
+            res.send(result);
+        })
 
-        // app.post('/carts/:id',async(req,res)=>{
-        //     const newItem = req.body
-        // })
+        app.post('/carts/:id',async(req,res)=>{
+            const id = req.params.id;
+            // const newItem = req.body
+            const query = {_id: new ObjectId(id)}
+            const result = await cartsCollection.insertOne(query)
+            res.send(result);
+        })
 
         app.get('/cards', async (req, res) => {
             const cursor = brandsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
-        // app.get('/details', async (req, res) => {
-        //     const cursor = brandsCollection.find();
-        //     const result = await cursor.toArray();
-        //     res.send(result);
-        // })
 
-        app.get('/cards/:brandName',async(req,res)=>{
+        app.get('/cards/:brandName', async (req, res) => {
             const brandName = req.params.brandName;
             const query = { brandName: brandName }
             const result = await brandsCollection.find(query).toArray();
             res.send(result);
         })
 
-        app.get('/details/:id', async(req,res)=>{
+        app.get('/details/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await brandsCollection.findOne(query);
+            res.send(result);
+        })
+
+        app.get('/updates/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await brandsCollection.findOne(query);
+            // const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.put('/updates/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedCards = req.body;
+            console.log(updatedCards);
+            const cards = {
+                $set: {
+                    image : updatedCards.image,
+                    name : updatedCards.name,
+                    brandName : updatedCards.brandName,
+                    type : updatedCards.type,
+                    price : updatedCards.price,
+                    shortDescription : updatedCards.shortDescription,
+                    rating : updatedCards.rating
+                }
+            }
+            const result = await brandsCollection.updateOne(filter, cards, options);
             res.send(result);
         })
 
