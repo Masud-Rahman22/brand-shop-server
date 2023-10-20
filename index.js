@@ -34,18 +34,22 @@ async function run() {
         })
         app.post('/carts', async (req, res) => {
             const newCard = req.body;
-            const result = await cartsCollection.insertMany(newCard);
+            const result = await cartsCollection.insertOne(newCard);
             res.send(result);
         })
 
-        app.post('/carts/:id',async(req,res)=>{
+        app.get('/carts',async(req,res)=>{
+            const result = await cartsCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.delete('/carts/:id', async(req,res)=>{
             const id = req.params.id;
-            // const newItem = req.body
             const query = {_id: new ObjectId(id)}
-            const result = await cartsCollection.insertOne(query)
+            const result = await cartsCollection.deleteOne(query);
             res.send(result);
         })
-
+        
         app.get('/cards', async (req, res) => {
             const cursor = brandsCollection.find();
             const result = await cursor.toArray();
@@ -79,7 +83,6 @@ async function run() {
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true };
             const updatedCards = req.body;
-            console.log(updatedCards);
             const cards = {
                 $set: {
                     image : updatedCards.image,
